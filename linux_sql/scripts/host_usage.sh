@@ -31,7 +31,7 @@ cpu_kernel=$(echo "$vmstat_mb" | awk -v col="$kernel_state_col" '{print $col}' |
 
 # Retrieve disk info
 disk_io=$(vmstat -d | awk -v col="$disk_io_col" '{print $col}' | tail -n1 | xargs)
-disk_available=$(df -BM / | awk -v col="$disk_avail_col" '{print $col}' | tail -n1 | xargs)
+disk_available=$(df -BM / | awk -v col="$disk_avail_col" '{print $col}' | tail -n1 | xargs | grep -oE '[0-9]+')
 
 # Current time in 'yyyy-mm-dd HH-MM-SS' UTC format
 timestamp=$(vmstat -t | awk '{print $(NF-1), $NF}' | tail -n1 | xargs)
@@ -42,3 +42,18 @@ echo "CPU kernel state: $cpu_kernel"
 echo "Disk IO: $disk_io"
 echo "Disk available: $disk_available"
 echo "Timestamp: $timestamp"
+
+# Find matching host_id based on hostname from host_info table
+host_id="(SELECT id FROM host_info WHERE hostname='$hostname')";
+
+# SQL statement to insert usage info into table
+insert_stmt="INSERT INTO host_usage(\"timestamp\", host_id, memory_free, cpu_idle, cpu_kernel, disk_io, disk_available) \
+  VALUES ('$timestamp', $host_id, $memory_free, $cpu_idle, $cpu_kernel, $disk_io, $disk_available)"
+
+# Configure env variable for psql command
+export PGPASSWORD=$psql_password
+
+# Execute psql insert command using psql cli
+psql -h $psql_host -p $psql_port -d $db_name -U $psql_user -c "$insert_stmt"
+
+exit $?
