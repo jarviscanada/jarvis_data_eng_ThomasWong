@@ -28,15 +28,6 @@ l2_cache=$(echo "$lscpu_out" | awk -F: '/^L2 cache:/ {print $2}' | awk '{print $
 timestamp=$(vmstat -t | awk '{print $(NF-1), $NF}' | tail -n1 | xargs)
 total_mem=$(vmstat -s --unit K | head -n 1 | awk '{print $1}')
 
-echo "Hostname: $hostname"
-echo "CPU number: $cpu_number"
-echo "CPU architecture: $cpu_architecture"
-echo "CPU model: $cpu_model"
-echo "CPU mHz: $cpu_mhz"
-echo "l2 cache: $l2_cache"
-echo "Timestamp: $timestamp"
-echo "Total memory $total_mem"
-
 # SQL statement to insert host info into table
 insert_stmt="INSERT INTO host_info(hostname, cpu_number, cpu_architecture, cpu_model, cpu_mhz, l2_cache, timestamp, total_mem)
   VALUES ('$hostname', $cpu_number, '$cpu_architecture', '$cpu_model', $cpu_mhz, $l2_cache, '$timestamp', $total_mem)";
