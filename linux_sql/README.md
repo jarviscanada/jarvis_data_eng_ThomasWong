@@ -33,6 +33,7 @@ The project is broken down into separate components with each stage building upo
 
 Since all available data is present in the operating system, bash scripting is used collect and automate the project.
 # Architecture
+![Cluster architecture](./assets/Monitoring%20Agent%20Architecture.drawio.png)
 
 # Scripts
 #### psql_docker.sh - Configures the docker container for psql. Scripts starts|stops|creates docker.
