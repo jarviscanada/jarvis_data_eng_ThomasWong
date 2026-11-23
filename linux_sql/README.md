@@ -4,7 +4,7 @@ This project is a Linux cluster monitoring agent. Configured to each cluster mac
 Hardware specifications are collected once; resource usage once per minute. Stored in two database tables.
 * Docker: configuring psql environment
 * PSQL: PostgreSQL database
-* Bash: Script for creating docker containers, information collection and database insert
+* Bash: Script for creating Docker containers, information collection, and database insertion
 * Git: Version control system using GitFlow
 
 # Quick start
@@ -29,14 +29,15 @@ crontab -e
 # Insert: * * * * * echo -n "$(vmstat -t | awk '{print $(NF-1), $NF}' | tail -n1):" >> /tmp/host_usage.log && bash /absolute/path/to/scripts/host_usage.sh localhost 5432 host_agent postgres postgres >> /tmp/host_usage.log
 ```
 # Implementation
-The project is broken down into separate components with each stage building upon the previous completed work. Starting with configuring the environment and services, collecting the data, and interacting with the database system for data insertion. Automation is done via bash crontab utilities.
+The project is broken into separate components, with each stage building on the previous one. Starting with configuring the environment and services, collecting data, and interacting with the database system to insert data. Automation is done via bash crontab utilities.
 
+Since all available data is present in the operating system, bash scripting is used to collect and automate the project.
 Since all available data is present in the operating system, bash scripting is used collect and automate the project.
 # Architecture
 ![Cluster architecture](./assets/Monitoring%20Agent%20Architecture.drawio.png)
 
 # Scripts
-#### psql_docker.sh - Configures the docker container for psql. Scripts starts|stops|creates docker.
+#### psql_docker.sh - Configures the Docker container for psql. Scripts start, stop, and create the Docker container.
 ```bash
 ./scripts/psql_docker.sh create <db_username> <db_password> # Creates container and database volume
 ./scripts/psql_docker.sh start                              # Start existing container
@@ -46,7 +47,7 @@ Since all available data is present in the operating system, bash scripting is u
 ```bash
 ./scripts/host_info.sh <psql_host> <psql_port> <db_name> <psql_user> <psql_password>
 ```
-#### host_usage.sh - collects host resource usage and inserts into psql database using `vmstat` and `df` command.
+#### host_usage.sh - collects host resource usage and inserts into psql database using `vmstat` and `df` commands.
 ```bash
 ./scripts/host_usage.sh <psql_host> <psql_port> <db_name> <psql_user> <psql_password>
 ```
@@ -82,15 +83,15 @@ crotab -e
 | disk_io | INT4 | Disk I/O operations |
 | disk_available | INT4 | Available disk in root dir (MB) |
 # Testing Strategy
-Each script was individually tested by comparing executed results with expected results. On completion of the script, end-to-end testing was performed to ensure project was on track.
-* Script variables and results were checked via terminal output and with `bash -x` flag
-* Branch coverage testing to ensure all branches can be reached during execution 
-* Database table creation and insertion was checked manually by directly accessing via psql terminal `\dt` and `SELECT` statements
-* Log files where timestamped and compared with active tables
+Each script was individually tested by comparing executed results with expected results. On completion of the script, end-to-end testing was performed to ensure the project was on track.
+* Script variables and results were checked via terminal output and with the bash -x flag.
+* Branch coverage testing was performed to ensure all branches can be reached during execution
+* Database table creation and insertion were checked manually by directly accessing via psql terminal \dt and SELECT statements.
+* Log files were timestamped and compared with active tables.
 # Deployment
-GitHub was used for version control and ensured each host used the same scripts. Docker was used to maintain consistency in configuring database environment via docker containers. Docker container, database table creation, and initial host hardware specifications was manually executed once during deployment while resource usage was automated using `crontab` utility.
+GitHub was used for version control and ensured each host used the same scripts. Docker was used to maintain consistency in configuring the database environment via Docker containers. Docker container, database table creation, and initial host hardware specifications were manually executed once during deployment, while resource usage was automated using the `crontab` utility.
 # Improvements
-* A single script to automate the end-to-end deployment could be considered to reduce errors
+* A single script to automate the end-to-end deployment could be considered to reduce errors.
 * `GCP` firewall configuration could be explored to enable visibility of other VMs in the network
-* Current version does not allow re-execution of the host_info.sh script to update hardware information as hostname does not change
-  * Explore a more complex database structure to encorporate hardware changes e.g. separate table for hardware, one to many relationship with host
+* Current version does not allow re-execution of the host_info.sh script cannot be re-executed to update hardware information, as the hostname does not change
+  *   * Explore a more complex database structure to incorporate hardware changes, e.g., a separate table for hardware, with a one-to-many relationship with the host
