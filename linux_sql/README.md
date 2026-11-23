@@ -82,7 +82,15 @@ crotab -e
 | disk_io | INT4 | Disk I/O operations |
 | disk_available | INT4 | Available disk in root dir (MB) |
 # Testing Strategy
-
+Each script was individually tested by comparing executed results with expected results. On completion of the script, end-to-end testing was performed to ensure project was on track.
+* Script variables and results were checked via terminal output and with `bash -x` flag
+* Branch coverage testing to ensure all branches can be reached during execution 
+* Database table creation and insertion was checked manually by directly accessing via psql terminal `\dt` and `SELECT` statements
+* Log files where timestamped and compared with active tables
 # Deployment
-
+GitHub was used for version control and ensured each host used the same scripts. Docker was used to maintain consistency in configuring database environment via docker containers. Docker container, database table creation, and initial host hardware specifications was manually executed once during deployment while resource usage was automated using `crontab` utility.
 # Improvements
+* A single script to automate the end-to-end deployment could be considered to reduce errors
+* `GCP` firewall configuration could be explored to enable visibility of other VMs in the network
+* Current version does not allow re-execution of the host_info.sh script to update hardware information as hostname does not change
+  * Explore a more complex database structure to encorporate hardware changes e.g. separate table for hardware, one to many relationship with host
